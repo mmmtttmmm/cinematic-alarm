@@ -116,16 +116,15 @@ p {
   </div>
 </div>
 <script>
-// CINEMATIC alarm - epic, powerful, yet beautiful
+// INSTANT-TRIGGER cinematic alarm with SMOOTH FADE-IN
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 let isPlaying = false;
 
-// Epic chord progression - cinematic major intervals
 const cinematicChords = [
-  [261.63, 329.63, 392.00, 523.25], // C major chord (C-E-G-C)
-  [293.66, 369.99, 440.00, 587.33], // D major chord (D-F#-A-D)
-  [329.63, 415.30, 493.88, 659.25], // E major chord (E-G#-B-E)
-  [349.23, 440.00, 523.25, 698.46]  // F major chord (F-A-C-F)
+  [261.63, 329.63, 392.00, 523.25],
+  [293.66, 369.99, 440.00, 587.33],
+  [329.63, 415.30, 493.88, 659.25],
+  [349.23, 440.00, 523.25, 698.46]
 ];
 
 let chordIndex = 0;
@@ -138,46 +137,41 @@ function playEpicChord(frequencies) {
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
     
-    // Mix of sine and triangle for richer, warmer tone
     oscillator.type = i < 2 ? 'sine' : 'triangle';
     oscillator.frequency.value = freq;
     
     const now = audioContext.currentTime;
+    const baseVolume = [0.35, 0.28, 0.22, 0.18][i];
     
-    // Epic cinematic swell
-    const baseVolume = [
-      0.35,  // Bass note - powerful
-      0.28,  // Mid note
-      0.22,  // Upper note
-      0.18   // Top note - shimmer
-    ][i];
-    
-    // Dramatic crescendo then sustain then fade
-    gainNode.gain.setValueAtTime(0, now);
-    gainNode.gain.linearRampToValueAtTime(baseVolume * 0.3, now + 0.15);
-    gainNode.gain.linearRampToValueAtTime(baseVolume, now + 0.4);
-    gainNode.gain.setValueAtTime(baseVolume, now + 1.2);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 2.5);
+    // SMOOTH GENTLE FADE-IN (Option 1 - Fixed the "bang")
+    gainNode.gain.setValueAtTime(0.001, now);
+    gainNode.gain.exponentialRampToValueAtTime(baseVolume * 0.05, now + 0.8);
+    gainNode.gain.exponentialRampToValueAtTime(baseVolume * 0.2, now + 1.8);
+    gainNode.gain.exponentialRampToValueAtTime(baseVolume * 0.6, now + 2.8);
+    gainNode.gain.exponentialRampToValueAtTime(baseVolume, now + 3.5);
+    gainNode.gain.setValueAtTime(baseVolume, now + 5.0);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 7.5);
     
     oscillator.start(now);
-    oscillator.stop(now + 2.5);
+    oscillator.stop(now + 7.5);
   });
   
-  // Add subtle sub-bass for depth
+  // Gentle sub-bass
   const subBass = audioContext.createOscillator();
   const subGain = audioContext.createGain();
   subBass.connect(subGain);
   subGain.connect(audioContext.destination);
   subBass.type = 'sine';
-  subBass.frequency.value = frequencies[0] / 2; // Octave below
+  subBass.frequency.value = frequencies[0] / 2;
   
   const now = audioContext.currentTime;
-  subGain.gain.setValueAtTime(0, now);
-  subGain.gain.linearRampToValueAtTime(0.15, now + 0.3);
-  subGain.gain.exponentialRampToValueAtTime(0.01, now + 2.0);
+  subGain.gain.setValueAtTime(0.001, now);
+  subGain.gain.exponentialRampToValueAtTime(0.03, now + 1.5);
+  subGain.gain.exponentialRampToValueAtTime(0.15, now + 3.5);
+  subGain.gain.exponentialRampToValueAtTime(0.01, now + 6.5);
   
   subBass.start(now);
-  subBass.stop(now + 2.0);
+  subBass.stop(now + 6.5);
 }
 
 function playCinematicSequence() {
@@ -187,8 +181,6 @@ function playCinematicSequence() {
   playEpicChord(chord);
   
   chordIndex++;
-  
-  // Epic pause between chords
   setTimeout(playCinematicSequence, 3200);
 }
 
@@ -200,9 +192,9 @@ function startAlarm() {
 
 function stopAlarm() {
   isPlaying = false;
+  window.close();
 }
 
-// Update buttons
 const stopBtn = document.querySelector('.stop');
 const snoozeBtn = document.querySelector('.snooze');
 
@@ -214,7 +206,7 @@ if (snoozeBtn) {
   };
 }
 
-// Start on click
+// Auto-start on any interaction
 document.addEventListener('click', function() {
   if (audioContext.state === 'suspended') {
     audioContext.resume();
@@ -222,6 +214,7 @@ document.addEventListener('click', function() {
   startAlarm();
 }, { once: true });
 
+// Try to start immediately
 startAlarm();
 </script>
 </body>
