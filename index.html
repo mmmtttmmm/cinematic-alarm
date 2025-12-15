@@ -122,11 +122,12 @@ body {
 <script>
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 let currentGain = null;
+  let loopInterval = null;
 
 const reminders = {
   breathe: {
     title: 'Gentle Reminder',
-    message: 'Time to pause and breathe',
+        message: 'Time to pause and breathe',
     emoji: '✨',
     music: 'soft'
   },
@@ -162,6 +163,7 @@ function createMusicSequence(type) {
   gain.connect(audioContext.destination);
   gain.gain.setValueAtTime(0, now);
   gain.gain.linearRampToValueAtTime(0.15, now + 0.5);
+    let loopInterval = null;
   currentGain = gain;
 
   if (type === 'triumphant') {
@@ -197,6 +199,23 @@ function createMusicSequence(type) {
       chord.notes.forEach(freq => playNote(freq, now + chord.time, 0.4, gain));
     });
   }
+
+    // Schedule continuous looping
+  const scheduleLoop = () => {
+    // Determine loop duration based on type
+    let loopDuration = 2000; // default 2 seconds
+    if (type === 'triumphant') loopDuration = 2000;
+    else if (type === 'joyful') loopDuration = 1200;
+    else if (type === 'peaceful') loopDuration = 2000;
+    else if (type === 'gentle') loopDuration = 1500;
+    else loopDuration = 2000;
+
+    loopInterval = setInterval(() => {
+      createMusicSequence(type);
+    }, loopDuration);
+  };
+
+  scheduleLoop();
 }
 
 function playNote(frequency, startTime, duration, gainNode) {
@@ -215,7 +234,12 @@ function triggerReminder(type) {
   document.getElementById('reminderMessage').textContent = reminder.message;
   document.getElementById('reminderContent').classList.add('active');
   createMusicSequence(reminder.music);
-}
+
+  if (loopInterval) {
+        clearInterval(loopInterval);
+        loopInterval = null;
+      }
+  }
 
 function stopReminder() {
   if (currentGain) {
