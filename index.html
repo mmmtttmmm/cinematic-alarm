@@ -162,7 +162,7 @@ function createMusicSequence(type) {
   const gain = audioContext.createGain();
   gain.connect(audioContext.destination);
   gain.gain.setValueAtTime(0, now);
-  gain.gain.linearRampToValueAtTime(0.15, now + 0.5);
+  gain.gain.linearRampToValueAtTime(0.06, now + 0.5);
     let loopInterval = null;
   currentGain = gain;
 
@@ -203,12 +203,12 @@ function createMusicSequence(type) {
     // Schedule continuous looping
   const scheduleLoop = () => {
     // Determine loop duration based on type
-    let loopDuration = 2000; // default 2 seconds
-    if (type === 'triumphant') loopDuration = 2000;
-    else if (type === 'joyful') loopDuration = 1200;
-    else if (type === 'peaceful') loopDuration = 2000;
-    else if (type === 'gentle') loopDuration = 1500;
-    else loopDuration = 2000;
+    let loopDuration = 8000; // default 8 seconds    if (type === 'triumphant') 8000;
+    if (type === 'triumphant') loopDuration = 8000;    else if (type === 'peaceful') 8000;
+    else if (type === 'joyful') loopDuration = 5000;
+        else if (type === 'peaceful') loopDuration = 8000;
+        else if (type === 'gentle') loopDuration = 6000;
+        else loopDuration = 8000;
 
     loopInterval = setInterval(() => {
       createMusicSequence(type);
