@@ -229,7 +229,16 @@ function snoozeReminder() {
   stopReminder();
 }
 
-window.triggerReminder = triggerReminder;
+
+  
+  // Auto-trigger from URL parameter
+const urlParams = new URLSearchParams(window.location.search);
+const reminderType = urlParams.get('reminder');
+if (reminderType && reminders[reminderType]) {
+  window.addEventListener('load', () => {
+    setTimeout(() => triggerReminder(reminderType), 100);
+  });
+}window.triggerReminder = triggerReminder;
 </script>
 </body>
 </html>
